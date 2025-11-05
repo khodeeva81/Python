@@ -1,3 +1,3 @@
-first_name = "Ирина: "
-last_name = "Ходеева:"
-print  ("Вас зовут: " + last_name + " " + first_name)
+first_name=input("Ирина")
+last_name=input("Ходеева")
+print("вас зовут:"+first_name+" "+last_name+"")
