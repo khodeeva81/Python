@@ -7,23 +7,18 @@ driver = webdriver.Chrome()
 
 try:
     driver.get("http://uitestingplayground.com/textinput")
+    wait = WebDriverWait(driver, 10)
 
 
-    input_field = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, "#textInput")))
-    input_field.clear()
+    input_field = wait.until(EC.presence_of_element_located((By.ID, "newButtonName")))
     input_field.send_keys("SkyPro")
 
 
-    blue_button = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, "#blueButton")))
-    blue_button.click()
+    button = wait.until(EC.element_to_be_clickable((By.XPATH, "//button[text()='Blue']")))
+    button.click()
 
 
-    button_text = WebDriverWait(driver, 10).until(EC.text_to_be_present_in_element((By.CSS_SELECTOR, "#blueButton"), "Click me"))
-    updated_button_text = driver.find_element(By.CSS_SELECTOR, "#blueButton").text
-    print(f'"{updated_button_text}"')
-
-except Exception as e:
-    print(f"Произошла ошибка: {e}")
-
+    button_text = button.text
+    print(f'"{button_text}"')
 finally:
     driver.quit()
