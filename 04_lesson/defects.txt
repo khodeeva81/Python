@@ -1,0 +1,10 @@
+ def test_trim_inside_spaces_not_removed(utils):
+        # Методы trim не удаляют пробелы внутри строки
+>       assert utils.trim("  a  ") == "  a  "
+E       AssertionError: assert 'a  ' == '  a  '
+E
+E         -   a
+E         ? --
+E         + a
+
+04_lesson\test_string_utils.py:33: AssertionError
