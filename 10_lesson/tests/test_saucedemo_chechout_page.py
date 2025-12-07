@@ -1,106 +1,48 @@
-from selenium.webdriver.common.by import By
-from selenium.webdriver.remote.webdriver import WebDriver
+import pytest
+import allure
+from selenium import webdriver
+# Ваши импорты страниц
+# from your_pages import LoginPage, ProductsPage, CartPage, CheckoutPage
+@pytest.fixture
+def driver():
+    driver = webdriver.Chrome()
+    driver.maximize_window()
+    yield driver
+    driver.quit()
 
-class LoginPage:
-    def __init__(self, driver: WebDriver):
-        """
-        Конструктор страницы авторизации.
+    @allure.title("Полный сценарий оформления заказа")
+    @allure.description("Тест проверяет завершение покупки: вход, добавление товара, оформление заказа")
+    @allure.feature("Покупка товара")
+    @allure.severity(allure.severity_level.CRITICAL)
+    def test_full_checkout_flow(driver):
+        with allure.step("Открытие главной страницы и вход"):
+            driver.get("https://www.saucedemo.com/")
 
-        :param driver: WebDriver — экземпляр драйвера браузера.
-        """
-        self.driver: WebDriver = driver
+            login_page = LoginPage(driver)
 
-    def login(self, username: str, password: str) -> None:
-        """
-        Выполняет авторизацию на сайте — вводит логин и пароль, нажимает кнопку входа.
+            with allure.step("Ввод логина и пароля"):
+                login_page.login("standard_user", "secret_sauce")
 
-        :param username: str — имя пользователя.
-        :param password: str — пароль пользователя.
-        :return: None
-        """
-        self.driver.find_element(By.CSS_SELECTOR, '#user-name').send_keys(username)
-        self.driver.find_element(By.CSS_SELECTOR, '#password').send_keys(password)
-        self.driver.find_element(By.CSS_SELECTOR, '#login-button').click()
+        with allure.step("Добавление товара в корзину и переход к корзине"):
+            products_page = ProductsPage(driver)
 
+            with allure.step("Выбор продукта 'Sauce Labs Backpack'"):
+                products_page.add_product_to_cart("Sauce Labs Backpack")
+            with allure.step("Переход в корзину"):
+                products_page.go_to_cart()
 
-class ProductsPage:
-    def __init__(self, driver: WebDriver):
-        """
-        Конструктор страницы товаров.
+        with allure.step("Переход к оформлению заказа"):
+            cart_page = CartPage(driver)
+            cart_page.proceed_to_checkout()
 
-        :param driver: WebDriver — экземпляр драйвера браузера.
-        """
-        self.driver: WebDriver = driver
+        with allure.step("Заполнение данных и оформление заказа"):
+            checkout_page = CheckoutPage(driver)
 
-    def add_product_to_cart(self, product_name: str) -> None:
-        """
-        Добавляет указанный товар в корзину по названию.
+            with allure.step("Ввод имени, фамилии, почтового индекса"):
+                checkout_page.fill_in_form("Ivan", "Ivanov", "12345")
 
-        :param product_name: str — название продукта.
-        :return: None
-        """
-        if product_name == "Sauce Labs Backpack":
-            self.driver.find_element(By.CSS_SELECTOR, 'button[name="add-to-cart-sauce-labs-backpack"]').click()
-        elif product_name == "Sauce Labs Bolt T-Shirt":
-            self.driver.find_element(By.CSS_SELECTOR, 'button[name="add-to-cart-sauce-labs-bolt-t-shirt"]').click()
-        elif product_name == "Sauce Labs Onesie":
-            self.driver.find_element(By.CSS_SELECTOR, 'button[name="add-to-cart-sauce-labs-onesie"]').click()
+            with allure.step("Получение итоговой суммы заказа"):
+                total = checkout_page.get_total()
 
-    def go_to_cart(self) -> None:
-        """
-        Переход в корзину — клик по значку корзины.
-
-        :return: None
-        """
-        self.driver.find_element(By.CSS_SELECTOR, 'a[data-test="shopping-cart-link"]').click()
-
-
-class CartPage:
-    def __init__(self, driver: WebDriver):
-        """
-        Конструктор страницы корзины.
-
-        :param driver: WebDriver — экземпляр драйвера браузера.
-        """
-        self.driver: WebDriver = driver
-
-    def proceed_to_checkout(self) -> None:
-        """
-        Переходит к оформлению заказа — нажимает кнопку Checkout.
-
-        :return: None
-        """
-        self.driver.find_element(By.CSS_SELECTOR, "#checkout").click()
-
-
-class CheckoutPage:
-    def __init__(self, driver: WebDriver):
-        """
-        Конструктор страницы оформления заказа.
-
-        :param driver: WebDriver — экземпляр драйвера браузера.
-        """
-        self.driver: WebDriver = driver
-
-    def fill_in_form(self, first_name: str, last_name: str, postal_code: str) -> None:
-        """
-        Заполняет форму оформления заказа и нажимает Continue.
-
-        :param first_name: str — имя покупателя.
-        :param last_name: str — фамилия покупателя.
-        :param postal_code: str — почтовый индекс.
-        :return: None
-        """
-        self.driver.find_element(By.CSS_SELECTOR, "#first-name").send_keys(first_name)
-        self.driver.find_element(By.CSS_SELECTOR, "#last-name").send_keys(last_name)
-        self.driver.find_element(By.CSS_SELECTOR, "#postal-code").send_keys(postal_code)
-        self.driver.find_element(By.CSS_SELECTOR, "#continue").click()
-
-    def get_total(self) -> str:
-        """
-        Получает итоговую сумму заказа со страницы.
-
-        :return: str — строка с суммой заказа (например, "Total: $58.29").
-        """
-        total_element = self.driver.find_element(By.CSS_SELECTOR, 'div[data-test="total-label"]')
-        return total_element.text
+            with allure.step(f"Проверка, что итоговая сумма отображается корректно: {total}"):
+                assert "$" in total, "Итоговая сумма не найдена или некорректна"
