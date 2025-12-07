@@ -1,0 +1,2 @@
+# config.py
+DATABASE_URL = "postgresql://myuser:mypassword@localhost:5432/mydatabase"
