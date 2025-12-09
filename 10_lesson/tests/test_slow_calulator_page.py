@@ -3,7 +3,7 @@
 import pytest
 import allure
 from selenium import webdriver
-from slow_calculator_page import SlowCalculatorPage.
+from slow_calculator_page import SlowCalculatorPage
 
 @allure.title("Тест калькулятора с задержкой и проверкой результата")
 def test_slow_calculator():
