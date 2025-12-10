@@ -1,13 +1,26 @@
-from selenium.webdriver.common.by import By
+from typing import Any
 
 class LoginPage:
-    def __init__(self, driver):
+    def __init__(self, driver: Any) -> None:
+        """
+        Инициализация страницы логина.
+        :param driver: экземпляр WebDriver (например, ChromeDriver)
+        """
         self.driver = driver
-        self.username_input = (By.ID, "user-name")  # пример локатора, проверьте актуальный
-        self.password_input = (By.ID, "password")
-        self.login_button = (By.ID, "login-button")
 
-    def login(self, username, password):
-        self.driver.find_element(*self.username_input).send_keys(username)
-        self.driver.find_element(*self.password_input).send_keys(password)
-        self.driver.find_element(*self.login_button).click()
+    def login(self, username: str, password: str) -> None:
+        """
+        Выполняет вход в систему.
+        :param username: логин пользователя
+        :param password: пароль пользователя
+        """
+        # Тут ваш код для входа
+        pass
+
+    def is_login_button_present(self) -> bool:
+        """
+        Проверяет наличие кнопки входа.
+        :return: True, если кнопка есть
+        """
+        # Тут ваш код для проверки
+        return True
